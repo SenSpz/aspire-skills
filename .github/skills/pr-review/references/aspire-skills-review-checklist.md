@@ -88,8 +88,12 @@ baseline exists so that cross-skill behavior is measured against the same projec
 ## 6. Plugin manifest version sync
 
 Six canonical JSON files, both lockfile root versions, and all seven shipped
-skills carry the release version. Check them together whenever release versions
-change:
+skills share one version within a branch. Check them together whenever release
+versions change. Ordinary feature and release-fix PRs preserve dev's current version:
+
+Dedicated `bump-dev/<version>` PRs advance dev's coordinated version, add its
+changelog heading, and regenerate catalogs. They preserve source and existing
+changelog entries.
 
 | File | Field |
 |------|-------|
@@ -115,7 +119,7 @@ Review changes against those sources rather than treating the mirror as another
 version authority. Internal author skills under `.github/skills/` are not part of
 the shipped skill set.
 
-**Severity if release versions are out of sync:** `blocking`.
+**Severity for version skew or unrelated manifest edits:** `blocking`.
 
 ## 7. CHANGELOG
 
@@ -139,6 +143,10 @@ Release headings use Git tag links, not dates or `Unreleased`. Display versions
 without a `v` prefix, but keep the actual tag name in the link target, for example
 `## [0.0.4](https://github.com/microsoft/aspire-skills/releases/tag/v0.0.4)`.
 Preserve historical release note bodies when updating headings or references.
+
+Dev PRs keep the current version's `CHANGELOG.md` entry up to date as changes
+land, preserving earlier entries. Version-bump PRs add the next version's
+heading; `release/<version>` PRs finalize the notes for the selected snapshot.
 
 **Severity:** `important`.
 
@@ -207,6 +215,32 @@ Two questions to ask on every change:
 
 These are the questions Phase 2 of the review workflow exists to answer.
 
+## 13. Release preparation and publication
+
+Apply section 7 and the [development guide](../../../../docs/development.md).
+For a release PR, verify:
+
+- `release/<version>` starts at the selected dev commit, records that SHA and
+  deliberate backports, and targets main. Coordinated versions match the branch
+  and are newer than main's version. The Release branch check passes.
+- Changelog notes are finalized in nonempty Changed, Removed, and Added sections,
+  in that order, omitting empty sections and preserving published history.
+- Committed V1 and V2 catalogs match the shipped source. Dev retains these
+  catalogs too; regenerate them whenever shipped source changes.
+- Tests, bundle builds and attestations, skills-only upload, and required checks
+  agree. Distinguish local evidence from CI results.
+- Maintainer approval and merge authorize the publisher to tag the exact merged
+  main commit and publish matching changelog notes. Reruns preserve that tag and
+  those notes; no manual tag step or token-triggered follow-up job is needed.
+
+Backflow starts from current dev and merges main. Keep dev's next version,
+current changelog notes, and newer work, including non-version manifest changes;
+bring in main's approved changelog history and regenerate catalogs. Target dev
+and merge with a merge commit, not squash or rebase.
+
+**Severity:** `important` for inaccurate guidance or missing validation evidence;
+`blocking` for source/version mismatches or publication of unapproved code.
+
 ## Quick-scan order
 
 When time-boxed, walk the checks in this order — they catch the highest-impact issues
@@ -219,5 +253,6 @@ first:
 5. SKILL.md frontmatter (§1) + token budget (§2).
 6. Fixtures (§5).
 7. CHANGELOG (§7).
-8. MCP (§11).
-9. References hygiene (§10).
+8. Release preparation and publication (§13).
+9. MCP (§11).
+10. References hygiene (§10).

@@ -209,6 +209,7 @@ In that command, `-a github-copilot` selects the target agent, `-g` installs glo
 | Path | Purpose |
 |------|---------|
 | `skills/` | Source skill files, references, and evals |
+| `docs/` | Documentation |
 | `extensions/` | Source GitHub Copilot app canvas extensions |
 | `hooks/scripts/` | Canonical Aspire CLI agent telemetry hooks |
 | `.plugin/`, `.claude-plugin/`, `.cursor-plugin/` | Plugin metadata for marketplaces |
@@ -221,7 +222,7 @@ In that command, `-a github-copilot` selects the target agent, `-g` installs glo
 npm run bundle
 ```
 
-`npm run bundle` builds both published release artifacts:
+`npm run bundle` builds both bundle artifacts:
 
 | Artifact | Contents |
 |----------|----------|
@@ -252,15 +253,17 @@ does not provide per-skill installation-time version filtering.
 
 ### Publishing releases
 
-The publish workflow builds and attests both bundles, but uploads only
-`aspire-skills` by default. Manual runs on an existing version tag can select
-`include_skills` (default `true`) and `include_extensions` (default `false`); at
-least one must be selected. Tag pushes use the defaults. The workflow does not
-create Git tags.
+Merging a same-repository `release/<version>` PR into `main` runs
+[the publisher](.github/workflows/publish.yml). It tags the exact merged commit,
+copies the approved changelog notes into the GitHub release, builds and attests
+both bundles, and uploads only the skills bundle. It uses `GITHUB_TOKEN`, not a
+repo bot or stored personal token. Reruns preserve the tag's commit and notes.
+See [the development guide](docs/development.md) for the release flow.
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+See the [development guide](docs/development.md) for local development.
 
 ## License
 
